@@ -1,119 +1,172 @@
-import streamlit as st
-import time
+       import streamlit as st
+from openai import OpenAI
+import os
 
-# 1. Page Config
-st.set_page_config(page_title="Okhti: The Agency Console", page_icon="🌍", layout="wide")
+# --- 1. CONFIGURATION & STYLE ---
+st.set_page_config(page_title="Okhti Agency", page_icon="🌍", layout="wide")
 
-# 2. The Sidebar
+# Custom CSS to make it look like a Pro App (Not a script)
+st.markdown("""
+<style>
+    .main {
+        background-color: #f8f9fa;
+    }
+    .stButton>button {
+        width: 100%;
+        background-color: #2E86C1;
+        color: white;
+        border-radius: 8px;
+        height: 3em;
+        font-weight: bold;
+    }
+    .stTextArea>div>div>textarea {
+        background-color: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+    h1 {
+        color: #1B4F72;
+        font-family: 'Helvetica', sans-serif;
+    }
+    h2, h3 {
+        color: #2874A6;
+    }
+    .metric-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# --- 2. THE BRAIN (OpenAI Connection) ---
+# This tries to get the key from Streamlit Secrets
+api_key = st.secrets.get("OPENAI_API_KEY")
+client = None
+
+if api_key:
+    client = OpenAI(api_key=api_key)
+else:
+    # If no key, we show a warning (but the app still loads)
+    st.warning("⚠️ SYSTEM ALERT: OpenAI API Key not found. The AI Brain is offline.")
+
+# --- 3. INTELLIGENCE FUNCTIONS ---
+def ask_gpt(system_prompt, user_input):
+    if not client:
+        return "⚠️ **AI Offline:** Please add your API Key to Streamlit Secrets to unlock this feature."
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o", # Or gpt-3.5-turbo if you want it cheaper
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_input}
+            ]
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"❌ Error: {str(e)}"
+
+# --- 4. SIDEBAR NAVIGATION ---
 with st.sidebar:
-    st.title("🚀 Okhti Console")
-    st.write("*Talent is universal. Opportunity is not.*")
-    selected_module = st.radio(
-        "Choose your Module:", 
-        ["1. The Hero Engine", "2. Test Prep & Mental Health", "3. Global Systems Navigator", 
-         "4. Opportunity Door", "5. US Roadmap", "6. Mentorship Market", "7. Parents Initiative"]
+    st.image("https://img.icons8.com/fluency/96/globe-earth.png", width=60) # Placeholder Logo
+    st.title("OKHTI CONSOLE")
+    st.markdown("**The Agency Operating System**")
+    st.markdown("---")
+    
+    menu = st.radio(
+        "Select Module:", 
+        ["1. Hero Engine (Business)", 
+         "2. SAT/ACT & Mental Prep", 
+         "3. Global Systems Navigator", 
+         "4. Opportunity Door", 
+         "5. US Roadmap Generator", 
+         "6. Mentorship Market"]
     )
-    st.success("System Status: Online 🟢")
-    st.info("Built by Haneen Elweresh in Ghana 🇬🇭")
+    st.markdown("---")
+    st.caption("v1.0 | Built in Ghana 🇬🇭")
 
-# 3. The 'Fake' AI Logic (The Simulator)
-def get_hero_transformation(struggle):
-    # This simulates AI thinking time
-    time.sleep(2) 
-    
-    struggle_lower = struggle.lower()
-    
-    # Scenario A: The Milk Seller
-    if "milk" in struggle_lower or "sell" in struggle_lower:
-        return """
-        ### 🎯 Analysis: Supply Chain & Logistics
-        
-        **Your Professional Title:** Director of Operations & Inventory Management
-        **Your Business Name:** **'PureFlow Logistics'**
-        
-        **🧠 The Logic:**
-        You aren't just selling milk. You are managing **perishable inventory** in a high-risk environment. You calculate margins, manage customer relations, and handle last-mile delivery.
-        
-        **🚀 Immediate Action Plan:**
-        1. **Branding:** Print 'PureFlow: Fresh Daily' stickers at the local shop (Cost: 5 Cedis).
-        2. **Optimization:** Create a WhatsApp group for your top 5 customers for 'Pre-Orders' to reduce waste.
-        3. **Digital Record:** Use this app to log daily revenue.
-        """
-    
-    # Scenario B: Taking care of siblings
-    elif "sibling" in struggle_lower or "brother" in struggle_lower or "sister" in struggle_lower:
-        return """
-        ### 🎯 Analysis: Human Resource Management
-        
-        **Your Professional Title:** Head of Conflict Resolution & Team Lead
-        **Your Business Name:** **'Harmony Guardians'**
-        
-        **🧠 The Logic:**
-        Managing multiple stakeholders (siblings) with competing needs (food, attention) requires **High-Level Negotiation** and **Crisis Management**.
-        
-        **🚀 Immediate Action Plan:**
-        1. **Delegation:** Assign specific roles to older siblings (Systematize the workforce).
-        2. **Incentive Structure:** Create a 'Star Chart' economy for good behavior.
-        3. **Skill Translation:** Add 'Conflict Mediation' to your Okhti Resume.
-        """
-        
-    # Fallback for anything else
-    else:
-        return """
-        ### 🎯 Analysis: Strategic Problem Solving
-        
-        **Your Professional Title:** Systems Analyst
-        **Your Business Name:** **'Impact Solutions'**
-        
-        **🧠 The Logic:**
-        You are identifying bottlenecks in daily life and finding resource-efficient solutions. This is the core of **Entrepreneurship**.
-        
-        **🚀 Immediate Action Plan:**
-        1. **Document:** Write down the 3 hardest parts of this task.
-        2. **Digitize:** How can a simple tool make this faster?
-        3. **Scale:** Can you teach someone else to do it?
-        """
+# --- 5. MAIN APP LOGIC ---
 
-# 4. Main Page Layout
-st.title("🌍 Okhti: The Agency Engine")
-
-if selected_module == "1. The Hero Engine":
-    st.header("⚡ Turn Your Struggle into a Business")
-    st.write("There is a hero inside you. Tell us what you do every day that feels like a burden.")
+# === MODULE 1: THE HERO ENGINE ===
+if menu == "1. Hero Engine (Business)":
+    st.title("⚡ The Hero Engine")
+    st.subheader("Turn your daily struggle into a global business.")
     
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 1])
     
     with col1:
-        # Pre-fill the box so you don't even have to type in the video if you don't want to
-        user_input = st.text_area("What is your daily struggle?", placeholder="Example: I help my mum sell milk every morning...")
-        analyze_btn = st.button("Activate Hero Mode")
-    
+        st.info("💡 **Concept:** You don't need extracurriculars. Your life IS the business case.")
+        struggle = st.text_area("What is your daily responsibility?", height=150, 
+                              placeholder="e.g., I help my mum sell milk, I take care of 5 siblings, I crochet hats...")
+        
+        if st.button("Activate Agency Mode"):
+            if struggle:
+                with st.spinner("Analyzing Supply Chain & Economics..."):
+                    # THIS IS THE REAL AI PROMPT
+                    prompt = """
+                    You are a top-tier Venture Capitalist and Career Strategist. 
+                    Take the user's daily struggle and reframe it as a sophisticated business operation.
+                    
+                    Output Structure:
+                    1. **The Pivot:** One sentence changing the perspective.
+                    2. **Professional Title:** Give them a corporate title based on the task.
+                    3. **Business Logic:** Explain the hard skills involved (logistics, negotiation, etc.).
+                    4. **3-Step Execution Plan:** Concrete steps to brand and scale this TODAY.
+                    """
+                    result = ask_gpt(prompt, struggle)
+                    st.session_state['hero_result'] = result
+            else:
+                st.error("Please enter a struggle first.")
+
     with col2:
-        if analyze_btn and user_input:
-            with st.spinner("Connecting to Agency Engine..."):
-                result = get_hero_transformation(user_input)
-                st.success("Agency Unlocked!")
-                st.markdown(result)
-                st.button("Generate Logo (Beta)")
+        if 'hero_result' in st.session_state:
+            st.markdown("### 🚀 Your Agency Profile")
+            st.markdown(st.session_state['hero_result'])
+            st.success("Strategy Generated.")
 
-elif selected_module == "4. Opportunity Door":
-    st.header("🚪 The Opportunity Door")
-    st.write("Real-time, anonymous transparency for global scholarships.")
-    tab1, tab2 = st.tabs(["Fully Funded Database", "Anonymous Chat"])
+# === MODULE 2: TEST PREP ===
+elif menu == "2. SAT/ACT & Mental Prep":
+    st.title("🧠 Test Prep & Mental Resilience")
+    
+    tab1, tab2 = st.tabs(["Study Strategy", "Mental Breakdown Support"])
+    
     with tab1:
-        st.dataframe({"Scholarship": ["MBZUAI", "TAL Fellowship", "Rise Global"], "Deadline": ["Feb 28", "Rolling", "Jan 15"], "Status": ["Open", "Reviewing", "Closed"]})
+        topic = st.text_input("What specific topic are you stuck on?", placeholder="e.g., Quadratic Equations, English Inference questions")
+        if st.button("Generate Micro-Lesson"):
+            prompt = "You are an expert tutor. Explain this concept simply for a student, then give 1 trick to remember it."
+            st.markdown(ask_gpt(prompt, topic))
+            
     with tab2:
-        st.text_input("Post anonymously:", placeholder="Has anyone heard back from TAL yet?")
-        st.write("---")
-        st.write("👻 **Anon_Ghana:** Still waiting. Rejection emails usually come on Fridays.")
+        st.write("Feeling overwhelmed? Talk to the AI Counselor.")
+        vent = st.text_area("How are you feeling?", placeholder="I'm panicking about the exam tomorrow...")
+        if st.button("Get Support"):
+            prompt = "You are a supportive, empathetic mental health companion for students. Validate their feelings and give one breathing exercise or grounding technique."
+            st.markdown(ask_gpt(prompt, vent))
 
-elif selected_module == "7. Parents Initiative":
-    st.header("👨‍👩‍👧 The Compound Initiative")
-    st.write("Show your parents the ROI (Return on Investment) of Education.")
-    investment = st.slider("Hours spent on Okhti per week:", 1, 20, 5)
-    roi = investment * 52 * 15 
-    st.metric(label="Projected Annual Earning Potential (Future)", value=f"${roi} USD")
-    st.success(f"By investing {investment} hours a week, you increase future security by 300%.")
+# === MODULE 5: US ROADMAP ===
+elif menu == "5. US Roadmap Generator":
+    st.title("🗺️ US Admissions Roadmap")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        grade = st.selectbox("Current Grade:", ["Grade 9", "Grade 10", "Grade 11", "Grade 12/Gap Year"])
+        english = st.selectbox("English Level:", ["Beginner", "Intermediate (B1/B2)", "Advanced (C1/C2)"])
+        
+    if st.button("Generate My Checklist"):
+        with st.spinner("Mapping your future..."):
+            prompt = f"""
+            Create a strict, bulleted checklist for a student in {grade} with {english} English level who wants to study in the US.
+            Categorize into: 
+            1. **Academics**
+            2. **Standardized Tests**
+            3. **Extracurriculars (Hero Story)**
+            """
+            st.markdown(ask_gpt(prompt, "Generate Roadmap"))
 
+# === OTHER MODULES (Placeholders for now) ===
 else:
-    st.info(f"🚧 **{selected_module}** is currently being built in the Ghana Lab.")
+    st.title(f"🚧 {menu}")
+    st.write("This module is currently being engineered. Select Module 1, 2, or 5 to see the AI in action.")
+    st.image("https://cdn.dribbble.com/users/1187425/screenshots/10896767/media/132c3065b263b86cb413d09a06655c65.gif", width=400)
