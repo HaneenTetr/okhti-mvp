@@ -1,11 +1,10 @@
 import streamlit as st
-from openai import OpenAI
-import os
+import time
 
-# 1. Page Config (The Look)
+# 1. Page Config
 st.set_page_config(page_title="Okhti: The Agency Console", page_icon="🌍", layout="wide")
 
-# 2. The Sidebar (Your 7 Modules)
+# 2. The Sidebar
 with st.sidebar:
     st.title("🚀 Okhti Console")
     st.write("*Talent is universal. Opportunity is not.*")
@@ -14,44 +13,68 @@ with st.sidebar:
         ["1. The Hero Engine", "2. Test Prep & Mental Health", "3. Global Systems Navigator", 
          "4. Opportunity Door", "5. US Roadmap", "6. Mentorship Market", "7. Parents Initiative"]
     )
+    st.success("System Status: Online 🟢")
     st.info("Built by Haneen Elweresh in Ghana 🇬🇭")
 
-# 3. API Setup (We will set this up in the cloud later)
-# For now, we assume the key is in the secrets or environment variables
-# client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
+# 3. The 'Fake' AI Logic (The Simulator)
 def get_hero_transformation(struggle):
-    """
-    This function sends the struggle to the AI and returns the 'Hero' reframe.
-    """
-    # Placeholder for the actual API call logic
-    # In the real app, we uncomment the API call below
+    # This simulates AI thinking time
+    time.sleep(2) 
     
-    # response = client.chat.completions.create(
-    #     model="gpt-4o",
-    #     messages=[
-    #         {"role": "system", "content": "You are the Okhti Agency Engine. Turn daily chores into high-level business logic. Output: 1. A Business Name. 2. A Professional Title. 3. Three immediate action steps to scale."},
-    #         {"role": "user", "content": struggle}
-    #     ]
-    # )
-    # return response.choices[0].message.content
+    struggle_lower = struggle.lower()
     
-    return f"""
-    ### 🎯 Reframing: {struggle}
+    # Scenario A: The Milk Seller
+    if "milk" in struggle_lower or "sell" in struggle_lower:
+        return """
+        ### 🎯 Analysis: Supply Chain & Logistics
+        
+        **Your Professional Title:** Director of Operations & Inventory Management
+        **Your Business Name:** **'PureFlow Logistics'**
+        
+        **🧠 The Logic:**
+        You aren't just selling milk. You are managing **perishable inventory** in a high-risk environment. You calculate margins, manage customer relations, and handle last-mile delivery.
+        
+        **🚀 Immediate Action Plan:**
+        1. **Branding:** Print 'PureFlow: Fresh Daily' stickers at the local shop (Cost: 5 Cedis).
+        2. **Optimization:** Create a WhatsApp group for your top 5 customers for 'Pre-Orders' to reduce waste.
+        3. **Digital Record:** Use this app to log daily revenue.
+        """
     
-    **Your Professional Title:** Supply Chain & Logistics Director
-    **Your Business Name:** 'The Daily Flow: Essential Logistics'
-    
-    **Why this is a business:**
-    You aren't just selling milk. You are managing inventory, negotiating margins, and ensuring last-mile delivery.
-    
-    **🚀 Immediate Action Plan:**
-    1. **Branding:** We need a logo. (AI generating...)
-    2. **Sticker Strategy:** Print 50 stickers with your new name at the local shop.
-    3. **Digital Ledger:** Stop using paper. Use this app to track every sale.
-    """
+    # Scenario B: Taking care of siblings
+    elif "sibling" in struggle_lower or "brother" in struggle_lower or "sister" in struggle_lower:
+        return """
+        ### 🎯 Analysis: Human Resource Management
+        
+        **Your Professional Title:** Head of Conflict Resolution & Team Lead
+        **Your Business Name:** **'Harmony Guardians'**
+        
+        **🧠 The Logic:**
+        Managing multiple stakeholders (siblings) with competing needs (food, attention) requires **High-Level Negotiation** and **Crisis Management**.
+        
+        **🚀 Immediate Action Plan:**
+        1. **Delegation:** Assign specific roles to older siblings (Systematize the workforce).
+        2. **Incentive Structure:** Create a 'Star Chart' economy for good behavior.
+        3. **Skill Translation:** Add 'Conflict Mediation' to your Okhti Resume.
+        """
+        
+    # Fallback for anything else
+    else:
+        return """
+        ### 🎯 Analysis: Strategic Problem Solving
+        
+        **Your Professional Title:** Systems Analyst
+        **Your Business Name:** **'Impact Solutions'**
+        
+        **🧠 The Logic:**
+        You are identifying bottlenecks in daily life and finding resource-efficient solutions. This is the core of **Entrepreneurship**.
+        
+        **🚀 Immediate Action Plan:**
+        1. **Document:** Write down the 3 hardest parts of this task.
+        2. **Digitize:** How can a simple tool make this faster?
+        3. **Scale:** Can you teach someone else to do it?
+        """
 
-# 4. Main Page Logic
+# 4. Main Page Layout
 st.title("🌍 Okhti: The Agency Engine")
 
 if selected_module == "1. The Hero Engine":
@@ -61,43 +84,36 @@ if selected_module == "1. The Hero Engine":
     col1, col2 = st.columns(2)
     
     with col1:
+        # Pre-fill the box so you don't even have to type in the video if you don't want to
         user_input = st.text_area("What is your daily struggle?", placeholder="Example: I help my mum sell milk every morning...")
         analyze_btn = st.button("Activate Hero Mode")
     
     with col2:
         if analyze_btn and user_input:
-            with st.spinner("Reframing your reality..."):
-                # Call the AI function
+            with st.spinner("Connecting to Agency Engine..."):
                 result = get_hero_transformation(user_input)
                 st.success("Agency Unlocked!")
                 st.markdown(result)
                 st.button("Generate Logo (Beta)")
-                st.button("Download Business Plan")
 
 elif selected_module == "4. Opportunity Door":
     st.header("🚪 The Opportunity Door")
     st.write("Real-time, anonymous transparency for global scholarships.")
-    
     tab1, tab2 = st.tabs(["Fully Funded Database", "Anonymous Chat"])
-    
     with tab1:
         st.dataframe({"Scholarship": ["MBZUAI", "TAL Fellowship", "Rise Global"], "Deadline": ["Feb 28", "Rolling", "Jan 15"], "Status": ["Open", "Reviewing", "Closed"]})
-    
     with tab2:
         st.text_input("Post anonymously:", placeholder="Has anyone heard back from TAL yet?")
         st.write("---")
         st.write("👻 **Anon_Ghana:** Still waiting. Rejection emails usually come on Fridays.")
-        st.write("👻 **Anon_Egypt:** I got an interview! Check your spam folder.")
 
-elif selected_module == "6. Mentorship Market":
-    st.header("🤝 The Mentorship Economy")
-    st.write("Book a call. Fund a sister. Learn the path.")
-    st.metric(label="Mentor Split", value="80%", delta="Income for Student")
-    
-    st.markdown("""
-    * **Haneen E.** (MBZUAI Applicant) - *Strategy & Essays* - [Book for $15]
-    * **Sarah J.** (Stanford Physics) - *Research & STEM* - [Book for $20]
-    """)
+elif selected_module == "7. Parents Initiative":
+    st.header("👨‍👩‍👧 The Compound Initiative")
+    st.write("Show your parents the ROI (Return on Investment) of Education.")
+    investment = st.slider("Hours spent on Okhti per week:", 1, 20, 5)
+    roi = investment * 52 * 15 
+    st.metric(label="Projected Annual Earning Potential (Future)", value=f"${roi} USD")
+    st.success(f"By investing {investment} hours a week, you increase future security by 300%.")
 
 else:
-    st.info(f"🚧 **{selected_module}** is currently under construction in the Ghana Lab.")
+    st.info(f"🚧 **{selected_module}** is currently being built in the Ghana Lab.")
